@@ -1,15 +1,51 @@
+import 'package:dlash_chat/screens/login_screen.dart';
+import 'package:dlash_chat/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:dlash_chat/components/padded_buttons.dart';
 
 class WelcomeScreen extends StatefulWidget {
+  static String id = "0";
+
+  const WelcomeScreen({super.key});
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with TickerProviderStateMixin {
+  late AnimationController colorController;
+  late Animation backgroundColorAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Controller for background color that runs only once
+    colorController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1),
+    );
+    backgroundColorAnimation = ColorTween(begin: Colors.grey, end: Colors.white)
+        .animate(colorController);
+    colorController.forward(); // Run once and stop
+
+    colorController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    colorController.dispose(); // Dispose color controller
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor:
+      backgroundColorAnimation.value, // Set animated background color
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -18,61 +54,43 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                Container(
-                  child: Image.asset('images/logo.png'),
-                  height: 60.0,
-                ),
-                Text(
-                  'Flash Chat',
-                  style: TextStyle(
-                    fontSize: 45.0,
-                    fontWeight: FontWeight.w900,
+                Hero(
+                  tag: 'logo',
+                  child: SizedBox(
+                    height: 60,
+                    child: Image.asset('images/logo.png'),
                   ),
                 ),
+                AnimatedTextKit(animatedTexts: [
+                  TypewriterAnimatedText('Flash Chat',
+                      textStyle: const TextStyle(
+                          fontSize: 45,
+                          color: Colors.purpleAccent,
+                          fontWeight: FontWeight.w900))
+                ])
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 48.0,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                elevation: 5.0,
-                color: Colors.lightBlueAccent,
-                borderRadius: BorderRadius.circular(30.0),
-                child: MaterialButton(
-                  onPressed: () {
-                    //Go to login screen.
-                  },
-                  minWidth: 200.0,
-                  height: 42.0,
-                  child: Text(
-                    'Log In',
-                  ),
-                ),
-              ),
+            PaddingButton(
+              onPressed: () {
+                Navigator.pushNamed(context, LoginScreen.id);
+              },
+              colour: Colors.lightBlueAccent,
+              title: 'LOG IN',
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(30.0),
-                elevation: 5.0,
-                child: MaterialButton(
-                  onPressed: () {
-                    //Go to registration screen.
-                  },
-                  minWidth: 200.0,
-                  height: 42.0,
-                  child: Text(
-                    'Register',
-                  ),
-                ),
-              ),
-            ),
+            PaddingButton(
+              onPressed: () {
+                Navigator.pushNamed(context, RegistrationScreen.id);
+              },
+              colour: Colors.blue,
+              title: 'REGISTER',
+            )
           ],
         ),
       ),
     );
   }
 }
+
